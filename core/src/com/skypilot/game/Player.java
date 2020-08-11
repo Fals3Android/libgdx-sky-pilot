@@ -12,17 +12,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 public class Player {
     public SpriteBatch batch;
     public Texture grayfighter;
-    Sprite fighterSprite;
+    public Sprite fighterSprite;
     Sound flightSound = Gdx.audio.newSound(Gdx.files.internal("Airplane_In_Flight.mp3"));
     ShapeRenderer shapeRenderer;
-    int playerHealth = 100;
+    public int playerHealth = 100;
     Stage stage;
     Label label;
-    PlayerMovement playerMovement;
-    PlayerWeapon laser;
-    PlayerWeapon gravityBomb;
+    public PlayerMovement playerMovement;
+    public PlayerWeapon laser;
+    public PlayerWeapon gravityBomb;
 
-    Player(String planeType) {
+    public Player(String planeType) {
         batch = new SpriteBatch();
         grayfighter = new Texture(planeType + ".png");
         fighterSprite = new Sprite(grayfighter);

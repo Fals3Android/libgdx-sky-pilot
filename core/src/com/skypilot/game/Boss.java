@@ -8,21 +8,21 @@ import java.util.Map;
 
 public class Boss {
     ShapeRenderer shapeRenderer;
-    float bossPositionX = Gdx.graphics.getWidth() / 4 * 2;
-    float getBossPositionY = Gdx.graphics.getHeight() / 4 * 3;
-    float bossRadius = 100;
+    public float bossPositionX = Gdx.graphics.getWidth() / 4 * 2;
+    public float getBossPositionY = Gdx.graphics.getHeight() / 4 * 3;
+    public float bossRadius = 100;
     boolean hitXMin = true;
     float bossSpeed = 6;
-    Color bossColor = Color.BLACK;
+    public Color bossColor = Color.BLACK;
     float randomExplosionClock = 0;
     int randomExplosionThreshold = 0;
     boolean setOffExplosion = false;
     float randomExplosionX = 0.0f;
     float randomExplosionY = 0.0f;
-    boolean explosionComplete = false;
-    float health = 10f;
+    public boolean explosionComplete = false;
+    public float health = 10f;
 
-    Boss() {
+    public Boss() {
         shapeRenderer = new ShapeRenderer();
     }
 

@@ -1,25 +1,33 @@
-package com.skypilot.game;
+package com.skypilot.game.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.skypilot.game.Boss;
+import com.skypilot.game.Player;
 
-public class MainMenu {
+public class MainMenu implements Screen {
     BitmapFont font	= new BitmapFont();
+    Game game;
     Sound clickSound = Gdx.audio.newSound(Gdx.files.internal("Pen_Clicking.mp3"));
     Sound enterSound = Gdx.audio.newSound(Gdx.files.internal("Crash_Metal_Plate_Big_Room.mp3"));
     Music menuMusic = Gdx.audio.newMusic(Gdx.files.internal("MAIN_THEME.mp3"));
     int windowWidth;
     int windowHeight;
     Stage start;
+    Boss boss;
+    Player player;
 
     SpriteBatch batch;
     Texture spacecraft;
@@ -31,11 +39,10 @@ public class MainMenu {
     String[] planes = {"spacecraft", "grayfighter"};
     public String chosenPlane = planes[0];
 
-    boolean hasPlayerMadeChoice = true; // set to true to skip main menu sequence
-
-    MainMenu(int windowWidth, int windowHeight) {
-        this.windowWidth = windowWidth;
-        this.windowHeight = windowHeight;
+    public MainMenu(Game game) {
+        this.game = game;
+        this.windowWidth = Gdx.graphics.getWidth();
+        this.windowHeight = Gdx.graphics.getHeight();
         float xCenter = this.windowWidth / 4;
 
         start = new Stage();
@@ -72,7 +79,7 @@ public class MainMenu {
 
     public void drawMenu() {
 //        menuMusic.setLooping(true);
-        menuMusic.play();
+//        menuMusic.play();
         start.draw();
         batch.begin();
         if(craftSprite != null && fighterSprite != null) {
@@ -99,13 +106,52 @@ public class MainMenu {
             clock = 0;
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ENTER) && clock > 0.3 && !hasPlayerMadeChoice) {
+        if(Gdx.input.isKeyPressed(Input.Keys.ENTER) && clock > 0.3) {
             menuMusic.pause();
             start.clear();
             craftSprite = null;
             fighterSprite = null;
             enterSound.play(0.8f);
-            hasPlayerMadeChoice = true;
+			boss = new Boss();
+			player = new Player(chosenPlane);
+            game.setScreen(new Level(player, boss));
         }
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        drawMenu();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+
     }
 }

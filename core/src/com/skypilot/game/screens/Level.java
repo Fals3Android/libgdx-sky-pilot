@@ -1,21 +1,23 @@
-package com.skypilot.game;
+package com.skypilot.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.skypilot.game.Boss;
+import com.skypilot.game.Player;
 
-public class Level {
+public class Level implements Screen {
     Player player;
     Boss boss;
     Stage stage;
-
     float clock = 0;
 
-    Level(Player player, Boss boss) {
+    public Level(Player player, Boss boss) {
         this.player = player;
         this.boss = boss;
         this.stage = new Stage();
@@ -97,5 +99,40 @@ public class Level {
         }
 
         return false;
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void render(float delta) {
+        drawLevel();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+
     }
 }
