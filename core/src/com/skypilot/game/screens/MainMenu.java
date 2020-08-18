@@ -2,22 +2,22 @@ package com.skypilot.game.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.skypilot.game.Boss;
 import com.skypilot.game.Player;
+import com.skypilot.game.input.MainMenuProcessor;
 
 public class MainMenu implements Screen {
+    MainMenuProcessor menuProcessor;
     BitmapFont font	= new BitmapFont();
     Game game;
     Sound clickSound = Gdx.audio.newSound(Gdx.files.internal("Pen_Clicking.mp3"));
@@ -29,15 +29,16 @@ public class MainMenu implements Screen {
     Boss boss;
     Player player;
 
+    TextureAtlas atlas;
     SpriteBatch batch;
-    Texture spacecraft;
-    Texture grayfighter;
     Sprite craftSprite;
+    Sprite bomberSprite;
     Sprite fighterSprite;
     float clock = 0;
 
-    String[] planes = {"spacecraft", "grayfighter"};
-    public String chosenPlane = planes[0];
+    Sprite[] planes = {craftSprite, bomberSprite, fighterSprite};
+    public Sprite chosenPlane;
+    int chosenPlaneIndex = 0;
 
     public MainMenu(Game game) {
         this.game = game;
@@ -55,14 +56,27 @@ public class MainMenu implements Screen {
 
         batch = new SpriteBatch();
 
-        spacecraft = new Texture("spacecraft.png");
-        craftSprite = new Sprite(spacecraft);
-        craftSprite.setPosition(xCenter, windowHeight / 2.3f);
+        atlas = new TextureAtlas(Gdx.files.internal("packed/game.atlas"));
+        craftSprite = atlas.createSprite("PLANE");
+        craftSprite.setScale(3f, 4f);
+        craftSprite.setPosition(xCenter * 1.1f, windowHeight / 2.3f);
+        planes[0] = craftSprite;
 
-        grayfighter = new Texture("grayfighter.png");
-        fighterSprite = new Sprite(grayfighter);
-        fighterSprite.setPosition(xCenter * 2.4f, windowHeight / 2.3f);
-        craftSprite.setColor(Color.GOLD);
+        bomberSprite = atlas.createSprite("PLANE-TWO");
+        bomberSprite.setScale(3f, 4f);
+        bomberSprite.setPosition(xCenter * 1.9f, windowHeight / 2.3f);
+        planes[1] = bomberSprite;
+
+        fighterSprite = atlas.createSprite("PLANE-THREE");
+        fighterSprite.setScale(3f, 4f);
+        fighterSprite.setPosition(xCenter * 2.7f, windowHeight / 2.3f);
+        planes[2] = fighterSprite;
+        chosenPlane = craftSprite;
+        chosenPlane.setY(chosenPlane.getY() + 20);
+        menuProcessor = new MainMenuProcessor(clickSound, chosenPlaneIndex, chosenPlane, windowHeight, menuMusic, start, enterSound, boss, player, game, planes);
+        menuMusic.setLooping(true);
+        menuMusic.setVolume(0.7f);
+        menuMusic.play();
     }
 
     public Label createLabel(String text, float xPosition, float yPosition, float scale) {
@@ -78,54 +92,28 @@ public class MainMenu implements Screen {
     }
 
     public void drawMenu() {
-//        menuMusic.setLooping(true);
-//        menuMusic.play();
         start.draw();
         batch.begin();
-        if(craftSprite != null && fighterSprite != null) {
-            craftSprite.draw(batch);
-            fighterSprite.draw(batch);
-        }
+        craftSprite.draw(batch);
+        bomberSprite.draw(batch);
+        fighterSprite.draw(batch);
         batch.end();
 
-        clock += Gdx.graphics.getDeltaTime(); // add the time since the last frame
-
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && clock > 0.3) {
-            craftSprite.setColor(Color.GOLD);
-            fighterSprite.setColor(Color.WHITE);
-            clickSound.play();
-            chosenPlane = planes[0];
-            clock = 0;
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && clock > 0.3) {
-            fighterSprite.setColor(Color.GOLD);
-            craftSprite.setColor(Color.WHITE);
-            clickSound.play();
-            chosenPlane = planes[1];
-            clock = 0;
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.ENTER) && clock > 0.3) {
-            menuMusic.pause();
-            start.clear();
-            craftSprite = null;
-            fighterSprite = null;
-            enterSound.play(0.8f);
-			boss = new Boss();
-			player = new Player(chosenPlane);
-            game.setScreen(new Level(player, boss));
+        for(int i = 0; i <= planes.length - 1; i++) {
+            if(menuProcessor.chosenPlaneIndex != i) {
+                planes[i].setY(windowHeight / 2.3f);
+            }
         }
     }
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(menuProcessor);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 1, 1, 1);
+        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         drawMenu();
     }

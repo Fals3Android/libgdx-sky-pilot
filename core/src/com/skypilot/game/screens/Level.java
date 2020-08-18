@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.skypilot.game.Boss;
 import com.skypilot.game.Player;
+import com.skypilot.game.input.LevelProcessor;
 
 public class Level implements Screen {
     Player player;
@@ -35,13 +36,13 @@ public class Level implements Screen {
             return;
         }
 
-        Gdx.gl.glClearColor(0, 0.8f, 0.8f, 1);
+        Gdx.gl.glClearColor(0, 0.3f, 0.8f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         player.drawPlayer();
         boss.drawBoss(player.playerMovement.getPlayerCoordinates());
         if(didPlayerMissleHit()) {
-            boss.bossColor = Color.RED;
+            boss.bossSprite.setColor(0.5f, 0, 0, 1);
             boss.health -= 1.5f;
         }
 
@@ -50,14 +51,15 @@ public class Level implements Screen {
         }
 
         if(boss.wasPlayerDamaged(player.playerMovement.getPlayerCoordinates()) && boss.explosionComplete) {
-            player.fighterSprite.setColor(Color.RED);
+            player.playerSprite.setColor(Color.RED);
             player.playerHealth = player.playerHealth - 1;
         }
 
         clock += Gdx.graphics.getDeltaTime(); // add the time since the last frame
         if(clock > 1) {
-            player.fighterSprite.setColor(Color.WHITE);
-            boss.bossColor = Color.BLACK;
+            player.playerSprite.setColor(Color.WHITE);
+            boss.bossSprite.setColor(1,1,1,1);
+            boss.bossSprite.setRegion(64, 0, 32, 32);
             clock = 0;
         }
     }
@@ -103,7 +105,7 @@ public class Level implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(new LevelProcessor());
     }
 
     @Override

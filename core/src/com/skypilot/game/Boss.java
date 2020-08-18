@@ -2,12 +2,18 @@ package com.skypilot.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.Map;
 
 public class Boss {
     ShapeRenderer shapeRenderer;
+    public Sprite bossSprite;
+    SpriteBatch batch;
     public float bossPositionX = Gdx.graphics.getWidth() / 4 * 2;
     public float getBossPositionY = Gdx.graphics.getHeight() / 4 * 3;
     public float bossRadius = 100;
@@ -23,11 +29,19 @@ public class Boss {
     public float health = 10f;
 
     public Boss() {
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("packed/game.atlas"));
+        bossSprite = atlas.createSprite("BOSS-ONE");
+        bossSprite.setScale(2, 3);
+        batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
     }
 
     public void drawBoss(Map<String, Float> playerCoordinates) {
-        createBossShape();
+        batch.begin();
+        bossSprite.setPosition(moveBossXAxis(), getBossPositionY);
+        bossSprite.setRegion(34, 0, 32, 32);
+        bossSprite.draw(batch);
+        batch.end();
         spawnRandomExplosions(playerCoordinates);
     }
 
