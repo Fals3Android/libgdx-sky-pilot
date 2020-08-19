@@ -20,21 +20,17 @@ public class MainMenu implements Screen {
     MainMenuProcessor menuProcessor;
     BitmapFont font	= new BitmapFont();
     Game game;
-    Sound clickSound = Gdx.audio.newSound(Gdx.files.internal("Pen_Clicking.mp3"));
-    Sound enterSound = Gdx.audio.newSound(Gdx.files.internal("Crash_Metal_Plate_Big_Room.mp3"));
     Music menuMusic = Gdx.audio.newMusic(Gdx.files.internal("MAIN_THEME.mp3"));
     int windowWidth;
     int windowHeight;
     Stage start;
     Boss boss;
     Player player;
-
     TextureAtlas atlas;
     SpriteBatch batch;
     Sprite craftSprite;
     Sprite bomberSprite;
     Sprite fighterSprite;
-    float clock = 0;
 
     Sprite[] planes = {craftSprite, bomberSprite, fighterSprite};
     public Sprite chosenPlane;
@@ -73,7 +69,7 @@ public class MainMenu implements Screen {
         planes[2] = fighterSprite;
         chosenPlane = craftSprite;
         chosenPlane.setY(chosenPlane.getY() + 20);
-        menuProcessor = new MainMenuProcessor(clickSound, chosenPlaneIndex, chosenPlane, windowHeight, menuMusic, start, enterSound, boss, player, game, planes);
+        menuProcessor = new MainMenuProcessor(chosenPlaneIndex, chosenPlane, windowHeight, boss, player, game, planes);
         menuMusic.setLooping(true);
         menuMusic.setVolume(0.7f);
         menuMusic.play();
@@ -91,7 +87,15 @@ public class MainMenu implements Screen {
         return label;
     }
 
-    public void drawMenu() {
+    @Override
+    public void show() {
+        Gdx.input.setInputProcessor(menuProcessor);
+    }
+
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         start.draw();
         batch.begin();
         craftSprite.draw(batch);
@@ -104,18 +108,6 @@ public class MainMenu implements Screen {
                 planes[i].setY(windowHeight / 2.3f);
             }
         }
-    }
-
-    @Override
-    public void show() {
-        Gdx.input.setInputProcessor(menuProcessor);
-    }
-
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        drawMenu();
     }
 
     @Override
@@ -135,11 +127,13 @@ public class MainMenu implements Screen {
 
     @Override
     public void hide() {
-
+        start.clear();
+        menuMusic.stop();
     }
 
     @Override
     public void dispose() {
-
+        menuMusic.dispose();
+        start.dispose();
     }
 }

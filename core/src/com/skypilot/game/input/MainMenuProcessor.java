@@ -1,37 +1,29 @@
 package com.skypilot.game.input;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.skypilot.game.Boss;
 import com.skypilot.game.Player;
 import com.skypilot.game.screens.Level;
 
 public class MainMenuProcessor implements InputProcessor {
-
-    private Sound clickSound;
+    Sound clickSound = Gdx.audio.newSound(Gdx.files.internal("Pen_Clicking.mp3"));
+    Sound enterSound = Gdx.audio.newSound(Gdx.files.internal("Crash_Metal_Plate_Big_Room.mp3"));
     public int chosenPlaneIndex;
     private Sprite chosenPlane;
     private float windowHeight;
-    private Music menuMusic;
-    private Stage start;
-    private Sound enterSound;
     private Boss boss;
     private Player player;
     private Game game;
     private Sprite[] planes;
 
-    public MainMenuProcessor(Sound clickSound, int chosenPlaneIndex, Sprite chosenPlane, float windowHeight, Music menuMusic, Stage start, Sound enterSound, Boss boss, Player player, Game game, Sprite[] planes) {
-        this.clickSound = clickSound;
+    public MainMenuProcessor(int chosenPlaneIndex, Sprite chosenPlane, float windowHeight, Boss boss, Player player, Game game, Sprite[] planes) {
         this.chosenPlaneIndex = chosenPlaneIndex;
         this.chosenPlane = chosenPlane;
         this.windowHeight = windowHeight;
-        this.menuMusic = menuMusic;
-        this.start = start;
-        this.enterSound = enterSound;
         this.boss = boss;
         this.player = player;
         this.game = game;
@@ -64,8 +56,6 @@ public class MainMenuProcessor implements InputProcessor {
 
         if(keycode == 66) {
             // enter
-            menuMusic.pause();
-            start.clear();
             enterSound.play(0.8f);
             boss = new Boss();
             player = new Player(chosenPlane);
