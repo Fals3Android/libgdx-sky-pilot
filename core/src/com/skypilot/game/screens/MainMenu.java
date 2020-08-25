@@ -21,8 +21,8 @@ public class MainMenu implements Screen {
     BitmapFont font	= new BitmapFont();
     Game game;
     Music menuMusic = Gdx.audio.newMusic(Gdx.files.internal("MAIN_THEME.mp3"));
-    int windowWidth;
-    int windowHeight;
+    public Sound clickSound = Gdx.audio.newSound(Gdx.files.internal("Pen_Clicking.mp3"));
+    public Sound enterSound = Gdx.audio.newSound(Gdx.files.internal("Crash_Metal_Plate_Big_Room.mp3"));
     Stage start;
     Boss boss;
     Player player;
@@ -38,9 +38,7 @@ public class MainMenu implements Screen {
 
     public MainMenu(Game game) {
         this.game = game;
-        this.windowWidth = Gdx.graphics.getWidth();
-        this.windowHeight = Gdx.graphics.getHeight();
-        float xCenter = this.windowWidth / 4;
+        float xCenter = Gdx.graphics.getWidth() / 4;
 
         start = new Stage();
         Label chooseLabel = this.createLabel("Choose Your Craft", xCenter * 1.6f, 700, 1.5f);
@@ -55,21 +53,21 @@ public class MainMenu implements Screen {
         atlas = new TextureAtlas(Gdx.files.internal("packed/game.atlas"));
         craftSprite = atlas.createSprite("PLANE");
         craftSprite.setScale(3f, 4f);
-        craftSprite.setPosition(xCenter * 1.1f, windowHeight / 2.3f);
+        craftSprite.setPosition(xCenter * 1.1f, Gdx.graphics.getHeight() / 2.3f);
         planes[0] = craftSprite;
 
         bomberSprite = atlas.createSprite("PLANE-TWO");
         bomberSprite.setScale(3f, 4f);
-        bomberSprite.setPosition(xCenter * 1.9f, windowHeight / 2.3f);
+        bomberSprite.setPosition(xCenter * 1.9f, Gdx.graphics.getHeight() / 2.3f);
         planes[1] = bomberSprite;
 
         fighterSprite = atlas.createSprite("PLANE-THREE");
         fighterSprite.setScale(3f, 4f);
-        fighterSprite.setPosition(xCenter * 2.7f, windowHeight / 2.3f);
+        fighterSprite.setPosition(xCenter * 2.7f, Gdx.graphics.getHeight() / 2.3f);
         planes[2] = fighterSprite;
         chosenPlane = craftSprite;
         chosenPlane.setY(chosenPlane.getY() + 20);
-        menuProcessor = new MainMenuProcessor(chosenPlaneIndex, chosenPlane, windowHeight, boss, player, game, planes);
+        menuProcessor = new MainMenuProcessor(this);
         menuMusic.setLooping(true);
         menuMusic.setVolume(0.7f);
         menuMusic.play();
@@ -85,6 +83,29 @@ public class MainMenu implements Screen {
         label.setPosition(xPosition, yPosition);
         label.setFontScale(scale, scale);
         return label;
+    }
+
+    public void startGame() {
+        boss = new Boss();
+        player = new Player(chosenPlane);
+        game.setScreen(new Level(player, boss));
+    }
+
+    public void setPlaneType(boolean branch) {
+        if(branch) {
+            chosenPlaneIndex--;
+            chosenPlane = (chosenPlaneIndex >= 0) ? planes[chosenPlaneIndex] : planes[++chosenPlaneIndex];
+            if(chosenPlane.getY() < (Gdx.graphics.getHeight() / 2.3f) + 20) {
+                chosenPlane.setY(chosenPlane.getY() + 20);
+            }
+            return;
+        }
+
+        chosenPlaneIndex++;
+        chosenPlane = (chosenPlaneIndex <= planes.length - 1) ? planes[chosenPlaneIndex] : planes[--chosenPlaneIndex];
+        if(chosenPlane.getY() < (Gdx.graphics.getHeight() / 2.3f) + 20) {
+            chosenPlane.setY(chosenPlane.getY() + 20);
+        }
     }
 
     @Override
@@ -104,8 +125,8 @@ public class MainMenu implements Screen {
         batch.end();
 
         for(int i = 0; i <= planes.length - 1; i++) {
-            if(menuProcessor.chosenPlaneIndex != i) {
-                planes[i].setY(windowHeight / 2.3f);
+            if(chosenPlaneIndex != i) {
+                planes[i].setY(Gdx.graphics.getHeight() / 2.3f);
             }
         }
     }
@@ -135,5 +156,7 @@ public class MainMenu implements Screen {
     public void dispose() {
         menuMusic.dispose();
         start.dispose();
+        clickSound.dispose();
+        enterSound.dispose();
     }
 }

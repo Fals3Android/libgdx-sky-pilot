@@ -6,6 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.skypilot.game.Boss;
@@ -13,15 +16,21 @@ import com.skypilot.game.Player;
 import com.skypilot.game.input.LevelProcessor;
 
 public class Level implements Screen {
+    private final Sprite pipeSprite;
     Player player;
     Boss boss;
     Stage stage;
+    TextureAtlas atlas;
+    SpriteBatch batch;
     float clock = 0;
 
     public Level(Player player, Boss boss) {
         this.player = player;
         this.boss = boss;
         this.stage = new Stage();
+        batch = new SpriteBatch();
+        atlas = new TextureAtlas(Gdx.files.internal("packed/game.atlas"));
+        pipeSprite = atlas.createSprite("PIPE-BG");
     }
 
     public void drawLevel() {
