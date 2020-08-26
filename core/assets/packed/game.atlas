@@ -1,0 +1,48 @@
+
+game.png
+size: 256,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+BOSS-ONE
+  rotate: false
+  xy: 2, 2
+  size: 128, 96
+  orig: 128, 96
+  offset: 0, 0
+  index: -1
+PIPE-BG
+  rotate: false
+  xy: 132, 66
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+PLANE
+  rotate: false
+  xy: 132, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+PLANE-THREE
+  rotate: false
+  xy: 166, 66
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+PLANE-TWO
+  rotate: false
+  xy: 166, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+face
+  rotate: false
+  xy: 200, 66
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1

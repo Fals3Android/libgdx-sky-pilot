@@ -115,20 +115,22 @@ public class MainMenu implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        start.draw();
-        batch.begin();
-        craftSprite.draw(batch);
-        bomberSprite.draw(batch);
-        fighterSprite.draw(batch);
-        batch.end();
-
-        for(int i = 0; i <= planes.length - 1; i++) {
-            if(chosenPlaneIndex != i) {
-                planes[i].setY(Gdx.graphics.getHeight() / 2.3f);
-            }
-        }
+        startGame();
+//        TODO: Temp way to start on level 1
+//        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//        start.draw();
+//        batch.begin();
+//        craftSprite.draw(batch);
+//        bomberSprite.draw(batch);
+//        fighterSprite.draw(batch);
+//        batch.end();
+//
+//        for(int i = 0; i <= planes.length - 1; i++) {
+//            if(chosenPlaneIndex != i) {
+//                planes[i].setY(Gdx.graphics.getHeight() / 2.3f);
+//            }
+//        }
     }
 
     @Override

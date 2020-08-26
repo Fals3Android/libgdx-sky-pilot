@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1000;
 		config.height = 1000;
-//		config.fullscreen = true;
+		config.fullscreen = true;
 		config.pauseWhenMinimized = true;
 
 		//TODO: ths texture packer should really be for dev builds only

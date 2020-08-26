@@ -5,10 +5,12 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.skypilot.game.Boss;
@@ -16,11 +18,12 @@ import com.skypilot.game.Player;
 import com.skypilot.game.input.LevelProcessor;
 
 public class Level implements Screen {
-    private final Sprite pipeSprite;
+    OrthographicCamera camera;
+    TiledMap map;
+    TiledMapRenderer renderer;
     Player player;
     Boss boss;
     Stage stage;
-    TextureAtlas atlas;
     SpriteBatch batch;
     float clock = 0;
 
@@ -29,8 +32,16 @@ public class Level implements Screen {
         this.boss = boss;
         this.stage = new Stage();
         batch = new SpriteBatch();
-        atlas = new TextureAtlas(Gdx.files.internal("packed/game.atlas"));
-        pipeSprite = atlas.createSprite("PIPE-BG");
+
+        float w = Gdx.graphics.getWidth();
+        float h = Gdx.graphics.getHeight();
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, (w / h) * 18, 10);
+        camera.update();
+
+        map = new TmxMapLoader().load("tile-maps/level-one/level-one.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
     }
 
     public void drawLevel() {
@@ -44,9 +55,6 @@ public class Level implements Screen {
             }
             return;
         }
-
-        Gdx.gl.glClearColor(0, 0.3f, 0.8f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         player.drawPlayer();
         boss.drawBoss(player.playerMovement.getPlayerCoordinates());
@@ -119,7 +127,21 @@ public class Level implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0.3f, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        scrollCameraY();
+        camera.update();
+        renderer.setView(camera);
+        renderer.render();
         drawLevel();
+    }
+
+    private void scrollCameraY() {
+        if(camera.position.y <= 10) {
+            camera.position.y += 0.1f;
+        } else {
+            camera.position.y = 5;
+        }
     }
 
     @Override
@@ -144,6 +166,6 @@ public class Level implements Screen {
 
     @Override
     public void dispose() {
-
+        map.dispose();
     }
 }
