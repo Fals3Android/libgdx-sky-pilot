@@ -115,7 +115,8 @@ public class MainMenu implements Screen {
 
     @Override
     public void render(float delta) {
-        startGame();
+          game.setScreen(new Box2dLevel(fighterSprite));
+//        startGame();
 //        TODO: Temp way to start on level 1
 //        Gdx.gl.glClearColor(0f, 0.3f, 0.7f, 1f);
 //        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
