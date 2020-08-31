@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -25,19 +26,22 @@ public class Box2dLevel implements Screen {
     SpriteBatch batch;
     PolygonShape shape;
     World world;
+    Body worldBodyLeft;
+    Body worldBodyRight;
+    Body worldBodyTop;
+    Body worldBodyBottom;
     Body playerBody;
-    Body bodyOne;
     Box2DDebugRenderer debugRenderer;
+    float viewPortWidth = Gdx.graphics.getWidth() / 9;
+    float viewPortHeight = Gdx.graphics.getHeight() / 9;
 
     public Box2dLevel (Sprite player) {
         this.player = player;
-
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
         camera = new OrthographicCamera();
-        camera.setToOrtho(true, w, h);
+        camera.setToOrtho(false, viewPortWidth, viewPortHeight);
         batch = new SpriteBatch();
+        debugRenderer = new Box2DDebugRenderer();
+        shapeRenderer = new ShapeRenderer();
 
 //        map = new TmxMapLoader().load("tile-maps/level-one/level-one.tmx");
 //        renderer = new OrthogonalTiledMapRenderer(map, 1f / 16f);
@@ -47,16 +51,37 @@ public class Box2dLevel implements Screen {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(xPos, yPos);
-        bodyDef.linearDamping = 6f;
+        bodyDef.linearDamping = 10f;
 
         shape = new PolygonShape();
         shape.setAsBox(width, height);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
+        fixtureDef.friction = 0f;
         return world.createBody(bodyDef).createFixture(fixtureDef).getBody();
     }
 
     public Body createSquare(World world, float xPos, float yPos, float width, float height) {
+        BodyDef bodySquare = new BodyDef();
+        bodySquare.type = BodyDef.BodyType.StaticBody;
+        bodySquare.position.set(xPos, yPos);
+
+        PolygonShape boxShape = new PolygonShape();
+        boxShape.setAsBox(width, height);
+
+        FixtureDef fixtureDefBox = new FixtureDef();
+        fixtureDefBox.shape = boxShape;
+        Body body = world.createBody(bodySquare).createFixture(fixtureDefBox).getBody();
+        Vector2 pos = body.getWorldCenter();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(1, 1, 1, 1);
+        shapeRenderer.rect(pos.x - width, pos.y - height, width * 2, height * 2);
+        shapeRenderer.end();
+
+        return body;
+    }
+
+    public Body createWorldBounds(World world, float xPos, float yPos, float width, float height) {
         BodyDef bodySquare = new BodyDef();
         bodySquare.type = BodyDef.BodyType.StaticBody;
         bodySquare.position.set(xPos, yPos);
@@ -78,74 +103,71 @@ public class Box2dLevel implements Screen {
         camera.update();
     }
 
+    public void moveCameraAlongXAxis(OrthographicCamera camera, Vector2 target, World world) {
+        Vector3 position = camera.position;
+        position.x = 0;
+        position.y = camera.position.y + (target.y - camera.position.y) * .1f;
+        camera.position.set(position);
+        camera.update();
+    }
+
     @Override
     public void show() {
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
         world = new World(new Vector2(0, 0), true);
-        camera = new OrthographicCamera(w, h);
-        debugRenderer = new Box2DDebugRenderer();
+        createWorldBounds(viewPortWidth, 900);
+        //TODO: need to figure out some maths to scale the player with the world
+        player.setScale(0.2f,0.2f);
+        playerBody = createPlayer(world, 0, -50, player.getWidth() / 10, player.getHeight() / 10);
+    }
 
-        bodyOne = createSquare(world, 0, 0, 10, 10);
-        playerBody = createPlayer(world, -100, -100, player.getWidth() + 10, player.getHeight() + 30);
+    private void createWorldBounds(float w, float h) {
+        float worldHeight = h * 2;
+        int distanceFromCenterWorld = 1700;
+        worldBodyLeft = createWorldBounds(world, 0 - (w / 2), distanceFromCenterWorld, 1, worldHeight);
+        worldBodyRight = createWorldBounds(world, 0 + (w / 2), distanceFromCenterWorld, 1, worldHeight);
+        worldBodyBottom = createWorldBounds(world, 0, distanceFromCenterWorld - worldHeight, w / 2, 1);
+        worldBodyTop = createWorldBounds(world, 0, distanceFromCenterWorld + worldHeight, w / 2, 1);
     }
 
     @Override
     public void render(float delta) {
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
-        world.step(1 / 60f, 6, 2);
+        world.step(1 / 30f, 8, 3);
         Gdx.gl.glClearColor(.25f, .25f, .25f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        debugRenderer.render(world, camera.combined);
+        Matrix4 cameraSetting = camera.combined; // set this to various sprites and bodies to line them up;
+        shapeRenderer.setProjectionMatrix(cameraSetting);
+        debugRenderer.render(world, cameraSetting);
+        batch.setProjectionMatrix(cameraSetting);
 
-        Vector2 pos = bodyOne.getWorldCenter();
-        ShapeRenderer shapeRenderer = new ShapeRenderer();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        float width = 20, height = 20; // exactly half of my physics body???
-        shapeRenderer.rect((w / 2) + pos.x - (width / 2), (h / 2) + pos.y - (height / 2), width, height);
-        shapeRenderer.end();
+        createSquare(world, 0, 0, 10, 10);
+        createSquare(world, -60, 30, 10, 10);
+        createSquare(world, -30, 20, 10, 10);
+        createSquare(world, 60, 10, 10, 10);
+        createSquare(world, 30, 20, 10, 10);
+
 
         Vector2 playerPos = playerBody.getWorldCenter();
         batch.begin();
-        player.setPosition((w / 2) + playerPos.x - (player.getWidth() / 2), (h / 2) + playerPos.y - (player.getHeight() / 2));
+        player.setPosition(playerPos.x - (player.getWidth() / 2), playerPos.y - (player.getHeight() / 2));
         player.draw(batch);
-
         batch.end();
-
-        //Control the player
-        int x = 0, y = 0;
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            x += 10;
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            x -= 10;
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            y -= 10;
-        }
-
+        float vel = 20.0f;
+        float velX = 0, velY = 0;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            y += 10;
+            velY = vel ;
         }
-
-        if(x != 0) {
-            Vector2 vel = playerBody.getLinearVelocity();
-            playerBody.setLinearVelocity((x * 10), vel.y);
+        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+            velX = vel;
         }
-
-        if(y != 0) {
-            Vector2 vel = playerBody.getLinearVelocity();
-            playerBody.setLinearVelocity(vel.x, (y * 10));
+        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+            velY = -vel;
         }
-
-        player.setPosition(playerBody.getPosition().x, playerBody.getPosition().y);
-//        lerpToTarget(camera, playerBody.getPosition());
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+            velX = -vel;
+        }
+        // impulse = speed - linearVelocity * mass
+        playerBody.applyLinearImpulse(velX - (playerBody.getLinearVelocity().x * playerBody.getMass()), velY - (playerBody.getLinearVelocity().y * playerBody.getMass()), playerBody.getPosition().x, playerBody.getPosition().y, true);
+        moveCameraAlongXAxis(camera, new Vector2(playerBody.getPosition().x, playerBody.getPosition().y), world);
     }
 
     @Override
